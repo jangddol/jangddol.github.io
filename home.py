@@ -16,7 +16,7 @@ def home():
             # Code to run the simulation with multithreading
             pass
 
-    return render_template("index.html")
+    return render_template("index.html", character=character, artifact_set=artifact_set, weapon=weapon)
 
 if __name__ == "__main__":
     app.run()
