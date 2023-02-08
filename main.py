@@ -4,7 +4,7 @@ import threading
 app = Flask(__name__)
 
 @app.route("/", methods=["GET", "POST"])
-def main():
+def index():
     if request.method == "POST":
         character = request.form.get("character")
         artifact_set = request.form.get("artifact_set")
