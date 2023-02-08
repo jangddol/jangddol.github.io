@@ -4,19 +4,17 @@ import threading
 app = Flask(__name__)
 
 @app.route("/", methods=["GET", "POST"])
-def home():
+def main():
     if request.method == "POST":
         character = request.form.get("character")
         artifact_set = request.form.get("artifact_set")
         weapon = request.form.get("weapon")
         if request.form.get("update"):
-            # Code to generate the Character object and run 'MakeScoreFunction()' and 'MakeArtifactSetRanking()'
-            pass
+            return 1
         elif request.form.get("run_simulation"):
-            # Code to run the simulation with multithreading
-            pass
+            return 2
 
-    return render_template("index.html", character=character, artifact_set=artifact_set, weapon=weapon)
+    return render_template("index.html", characterResult=character, artifact_setResult=artifact_set, weaponResult=weapon)
 
 if __name__ == "__main__":
     app.run()
