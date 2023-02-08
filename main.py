@@ -13,8 +13,9 @@ def main():
             return 1
         elif request.form.get("run_simulation"):
             return 2
-
-    return render_template("index.html", characterResult=character, artifact_setResult=artifact_set, weaponResult=weapon)
+        return render_template("index.html", character=character, artifact_set=artifact_set, weapon=weapon)
+    else:
+        return 1
 
 if __name__ == "__main__":
     app.run()
