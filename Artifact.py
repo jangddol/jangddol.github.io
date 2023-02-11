@@ -1,8 +1,10 @@
 from Stat import Stat
-from Character import Character
 import numpy as np
 import random as rd
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from Character import Character
 
 MAXMAINOPTIONLIST = np.array([  31.1, 62.2, 46.6, 311., 51.8,
                                 46.6, 4780., 187., 58.3, 0.,
@@ -20,14 +22,6 @@ OPTIONARRAY = np.array([[2.72000003606081, 3.10999993234873, 3.50000001490116, 3
                         [16.3199996948242, 18.6499996185303, 20.9799995422363, 23.3099994659424],
                         [5.09999990463257, 5.82999996840954, 6.56000003218651, 7.28999972343445],
                         [16.2000007629395, 18.5200004577637, 20.8299999237061, 23.1499996185303]])
-
-
-# class Character:
-#    pass
-
-
-def CheckIsThereIn(element, list_):
-    return any(element == list_[i] for i in range(len(list_)))
 
 
 class Artifact:
@@ -148,10 +142,10 @@ class Artifact:
         self.__mSubStat = stat
         self.__AlertModified()
 
-    def SaveCharacterPointer(self, character: Character):
+    def SaveCharacterPointer(self, character: 'Character'):
         self.__mCharactersUsingThis.append(character)
 
-    def DeleteCharacterPointer(self, character: Character):
+    def DeleteCharacterPointer(self, character: 'Character'):
         if not self.__mCharactersUsingThis:
             return
         try:
@@ -159,9 +153,8 @@ class Artifact:
         except ValueError:
             pass
 
-    def IsUsingThis(self, character: Character):
-        returnBool = CheckIsThereIn(character, self.__mCharactersUsingThis)
-        return returnBool
+    def IsUsingThis(self, character: 'Character'):
+        return any(character == self.__mCharactersUsingThis[i] for i in range(len(self.__mCharactersUsingThis)))
 
     def GetPossibleMainOption(self):
         return 0

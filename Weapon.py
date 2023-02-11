@@ -1,15 +1,17 @@
 from Stat import Stat
-from Character import Character
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from Character import Character
 
 
 class Weapon:
     def __init__(self):
-        _mWeaponName = 'Weapon'
-        _mMainStat: Stat = Stat()
-        _mSubStat: Stat = Stat()
-        _mSubSubStat: Stat = Stat()
+        self._mWeaponName = 'Weapon'
+        self._mMainStat: Stat = Stat()
+        self._mSubStat: Stat = Stat()
+        self._mSubSubStat: Stat = Stat()
 
-    def DoFeedback(self, character: Character):
+    def DoFeedback(self, character: 'Character'):
         pass
 
     def GetMainStat(self):
