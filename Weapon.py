@@ -1,14 +1,15 @@
-import Stat
-import numpy as np
-import Character
+from Stat import Stat
+from Character import Character
+
 
 class Weapon:
-    _mWeaponName = 'Weapon'
-    _mMainStat: Stat = Stat()
-    _mSubStat: Stat = Stat()
-    _mSubSubStat: Stat = Stat()
+    def __init__(self):
+        _mWeaponName = 'Weapon'
+        _mMainStat: Stat = Stat()
+        _mSubStat: Stat = Stat()
+        _mSubSubStat: Stat = Stat()
 
-    def DoFeedback (character: Character):
+    def DoFeedback(self, character: Character):
         pass
 
     def GetMainStat(self):

@@ -1,4 +1,5 @@
-import Stat
+from Stat import Stat
+from Character import Character
 import numpy as np
 import random as rd
 
@@ -34,14 +35,14 @@ class Artifact:
         self.__mMainType = 0
         self.__mMainStat = Stat()
         self.__mSubStat = Stat()
-        self.__mCharactersUsingThis = np.array([])
+        self.__mCharactersUsingThis = []
         self._mType = 0
         self._mProbabilityWeight = np.array([])
         self._mCummulatedWeight = np.array([])
 
-    def __UseCummulatedWeight(self, cummulatedWeight: np.array):
+    def __UseCummulatedWeight(self, cummulatedWeight: np.ndarray):
         # generate random integer from 0 to the sum of probability table
-        length = cummulatedWeight.size()
+        length = len(cummulatedWeight)
         tempInt = rd.randrange(0, cummulatedWeight[length - 1]) + 1
 
         for i in range(length - 1):
@@ -54,7 +55,7 @@ class Artifact:
         self.SetMainType(selectedInt)
 
     def __GenerateSubOption(self):
-        subCummulatedWeight: np.array = self.__GenerateCummulatedWeight()
+        subCummulatedWeight: np.ndarray = self.__GenerateCummulatedWeight()
 		# 1. 메인옵션을 확인해서 확률표에서 해당 부분을 0으로 만든다.
 			# 1-1. 이걸 가지고 cummulatedWeight을 만든다.
 				# This cummulatedWeight is for subOption
@@ -62,7 +63,7 @@ class Artifact:
 
         whether4OptStart: bool = self.__Selected3or4OptStart()
             # 2. 처음에 3개인지 4개인지 고른다. -> 8개 or 9개
-        startOptList: np.array = self.__GenerateStartOpt(subCummulatedWeight)
+        startOptList: np.ndarray = self.__GenerateStartOpt(subCummulatedWeight)
             # 3. 처음 옵션 4개가 무엇인지 결정한다. 4개를 겹치지 않게 생성한다.
 
         self.__UpgradeSubOption(startOptList, whether4OptStart)
@@ -70,19 +71,19 @@ class Artifact:
 
     def __GenerateCummulatedWeight(self):
         returnList = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-        for x in returnList:
-            x = SUBOPTPROB[i]
+        for i in range(10):
+            returnList[i] = SUBOPTPROB[i]
         if ((self.__mMainType >= 0) and (self.__mMainType < 10) and (self.__mMainType != 3) and (self.__mMainType != 6)):
             returnList[self.__mMainType] = 0
         for i in range(9):
             returnList[i + 1] += returnList[i]
         return returnList
-        
+
     def __Selected3or4OptStart(self):
         return (rd.randrange(0, 5) == 0)
-        
+
     def __GenerateStartOpt(self, cummulatedWeight):
-        returnList = [-1] * 4
+        returnList = np.array([-1] * 4)
         returnList[0] = self.__UseCummulatedWeight(cummulatedWeight)
         for i in range(1, 4):
             temp = self.__UseCummulatedWeight(cummulatedWeight)
@@ -90,17 +91,20 @@ class Artifact:
                 temp = self.__UseCummulatedWeight(cummulatedWeight)
             returnList[i] = temp
         return returnList
-        
+
     def __UpgradeSubOption(self, startOptList, whether4OptStart):
         numUpgrade = 4 if not whether4OptStart else 5
 
-        options = [OPTIONARRAY[optIndex][rd.randrange(0, 4)] for optIndex in startOptList[:4]] 
-        + [OPTIONARRAY[startOptList[rd.randrange(0, 4)]][rd.randrange(0, 4)] for i in range(numUpgrade)]
-
-        for option in options:
-            optIndex, randomStat = option[0], option[1]
+        for i in range(4):
+            optIndex = startOptList[i]
+            randomStat = OPTIONARRAY[optIndex][rd.randrange(0, 4)]
             self.__mSubStat.AddOption(optIndex, randomStat)
-        
+
+        for i in range(numUpgrade):
+            randomIndex = startOptList[rd.randrange(0, 4)]
+            randomStat = OPTIONARRAY[randomIndex][rd.randrange(0, 4)]
+            self.__mSubStat.AddOption(randomIndex, randomStat)
+
     def __AlertModified(self):
         for character in self.__mCharactersUsingThis:
             character.ConfirmArtifactMainStatModified()
@@ -112,7 +116,7 @@ class Artifact:
         self.__GenerateSubOption() # 부옵션 : 부위마다, 메인옵션마다 다름.
         self.__AlertModified()
 
-    def Generation(self, mainType):
+    def Generation_FixMainType(self, mainType):
         self.__mMainStat.SetZero()
         self.__mSubStat.SetZero()
         self.SetMainType(mainType)
@@ -138,16 +142,16 @@ class Artifact:
         return self.__mSubStat
 
     def GetSubStatValue(self, index):
-        return self.__mSubStat.GetOption(self, index)
+        return self.__mSubStat.GetOption(index)
 
     def SetSubStat(self, stat):
         self.__mSubStat = stat
-        self.__AlertModified(self)
+        self.__AlertModified()
 
-    def SaveCharacterPointer(self, character):
+    def SaveCharacterPointer(self, character: Character):
         self.__mCharactersUsingThis.append(character)
 
-    def DeleteCharacterPointer(self, character):
+    def DeleteCharacterPointer(self, character: Character):
         if not self.__mCharactersUsingThis:
             return
         try:
@@ -155,7 +159,7 @@ class Artifact:
         except ValueError:
             pass
 
-    def IsUsingThis(self, character):
+    def IsUsingThis(self, character: Character):
         returnBool = CheckIsThereIn(character, self.__mCharactersUsingThis)
         return returnBool
 
