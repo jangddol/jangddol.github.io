@@ -25,40 +25,29 @@ OPTIONARRAY = np.array([[2.72000003606081, 3.10999993234873, 3.50000001490116, 3
 #    pass
 
 
-def CheckIsThereIn(element: int, list: np.array):
-	returnBool = False
-	for i in range(4):
-		if (element == list[i]):
-			returnBool = True
-			break
-	return returnBool
+def CheckIsThereIn(element, list_):
+    return any(element == list_[i] for i in range(len(list_)))
 
 
 class Artifact:
-    __mMainType = 0
-
-    __mMainStat: Stat = Stat()
-    __mSubStat: Stat = Stat()
-    
-    __mCharactersUsingThis = []
+    def __init__(self):
+        self.__mMainType = 0
+        self.__mMainStat = Stat()
+        self.__mSubStat = Stat()
+        self.__mCharactersUsingThis = np.array([])
+        self._mType = 0
+        self._mProbabilityWeight = np.array([])
+        self._mCummulatedWeight = np.array([])
 
     def __UseCummulatedWeight(self, cummulatedWeight: np.array):
         # generate random integer from 0 to the sum of probability table
         length = cummulatedWeight.size()
-        
-        if (cummulatedWeight[length - 1] == 1):
-            tempInt = 1
-        else:
-            tempInt = rd.randrange(0, cummulatedWeight[length - 1]) + 1
+        tempInt = rd.randrange(0, cummulatedWeight[length - 1]) + 1
 
-        selectedInt = 0
-        for i in range(length): # for문을 돌리면서 대소비교를 한다.
-            nowElement = cummulatedWeight[i]
-            if (tempInt > beforeElement and tempInt <= nowElement):
-                selectedInt = i # 랜덤 int를 가지고 어느 주옵인지 결정한다.
-                break
-            beforeElement = nowElement
-        return selectedInt
+        for i in range(length - 1):
+            if tempInt > cummulatedWeight[i] and tempInt <= cummulatedWeight[i + 1]:
+                return i
+        return length - 1
     
     def __GenerateMainOption(self):
         selectedInt = self.__UseCummulatedWeight(self._mCummulatedWeight)
@@ -90,48 +79,31 @@ class Artifact:
         return returnList
         
     def __Selected3or4OptStart(self):
-        if (rd.randrange(0, 5) == 0):
-            return True
-        else:
-            return False
+        return (rd.randrange(0, 5) == 0)
         
     def __GenerateStartOpt(self, cummulatedWeight):
-        returnList = np.array([ -1, -1, -1, -1 ])
+        returnList = [-1] * 4
         returnList[0] = self.__UseCummulatedWeight(cummulatedWeight)
-        for j in range(3):
-            i = j + 1
+        for i in range(1, 4):
             temp = self.__UseCummulatedWeight(cummulatedWeight)
-            while (CheckIsThereIn(temp, returnList)):
+            while temp in returnList:
                 temp = self.__UseCummulatedWeight(cummulatedWeight)
             returnList[i] = temp
         return returnList
         
     def __UpgradeSubOption(self, startOptList, whether4OptStart):
-        numUpgrade = 4
-        if (whether4OptStart):
-            numUpgrade = 5
+        numUpgrade = 4 if not whether4OptStart else 5
 
-        # 각각 1회씩
-        for i in range(4):
-            optIndex = startOptList[i]
-            randomStat = OPTIONARRAY[optIndex][rd.randrange(0, 4)]
+        options = [OPTIONARRAY[optIndex][rd.randrange(0, 4)] for optIndex in startOptList[:4]] 
+        + [OPTIONARRAY[startOptList[rd.randrange(0, 4)]][rd.randrange(0, 4)] for i in range(numUpgrade)]
+
+        for option in options:
+            optIndex, randomStat = option[0], option[1]
             self.__mSubStat.AddOption(optIndex, randomStat)
-
-        # 랜덤으로 numUpgrade만큼
-        for i in range(numUpgrade):
-            randomIndex = startOptList[rd.randrange(0, 4)]
-            randomStat = OPTIONARRAY[randomIndex][rd.randrange(0, 4)]
-            self.__mSubStat.AddOption(randomIndex, randomStat)
         
     def __AlertModified(self):
         for character in self.__mCharactersUsingThis:
             character.ConfirmArtifactMainStatModified()
-
-
-    _mType: int = 0
-    _mProbabilityWeight = np.array([])
-    _mCummulatedWeight = np.array([])
-
 
     def Generation(self):
         self.__mMainStat.SetZero()
@@ -176,21 +148,15 @@ class Artifact:
         self.__mCharactersUsingThis.append(character)
 
     def DeleteCharacterPointer(self, character):
-        size = len(self.__mCharactersUsingThis)
-        if (size == 0):
-            pass
-        if (size == 1 and self.__mCharactersUsingThis[0] == character):
-            del self.__mCharactersUsingThis[0]
-        else:
+        if not self.__mCharactersUsingThis:
+            return
+        try:
             self.__mCharactersUsingThis.remove(character)
+        except ValueError:
+            pass
 
     def IsUsingThis(self, character):
-        returnBool = False
-        length = len(self.__mCharactersUsingThis)
-        for i in range(length):
-            if (character == self.__mCharactersUsingThis[i]):
-                returnBool = True
-                break
+        returnBool = CheckIsThereIn(character, self.__mCharactersUsingThis)
         return returnBool
 
     def GetPossibleMainOption(self):
