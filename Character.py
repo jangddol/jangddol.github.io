@@ -32,7 +32,14 @@ def FindNthLargestOption(damArray, nth):
 
 
 class Character:
-    def __init__(self):
+    __mArtFlower: ArtFlower
+    __mArtFeather: ArtFeather
+    __mArtClock: ArtClock
+    __mArtCup: ArtCup
+    __mArtCrown: ArtCrown
+    __mArtSetStat: ArtSetStat
+
+    def __init__(self, weapon: Weapon, artSetStat: ArtSetStat, flower: ArtFlower, feather: ArtFeather, clock: ArtClock, cup: ArtCup, crown: ArtCrown):
         self.__mStatAfterUpdateFromCharacterResonance: Stat = Stat() # never do initialization
         self.__mStatAfterUpdateFromWeapon: Stat = Stat() # never do initialization
         self.__mStatAfterUpdateFromArtSetStat: Stat = Stat() # never do initialization
@@ -57,13 +64,11 @@ class Character:
         self.__mFeedbackedStat: Stat = Stat()
         self.__mTargetEC: float = 100
         self.__mWeapon: Weapon
-        self.__mArtFlower: ArtFlower
-        self.__mArtFeather: ArtFeather
-        self.__mArtClock: ArtClock
-        self.__mArtCup: ArtCup
-        self.__mArtCrown: ArtCrown
-        self.__mArtSetStat: ArtSetStat
+        self.SetArtifact(flower, feather, clock, cup, crown)
+        self.SetArtSetStat(artSetStat)
         self.__mResonanceStat: Stat = Stat()
+
+        self.__mWeapon = weapon
 
     def __del__(self):
         self.__mArtSetStat.DeleteCharacterPointer(self)
@@ -255,7 +260,7 @@ class Character:
         self.__mCharacterStat.SetMonsterLevel(100.)
         self.__mCharacterStat.SetMonsterResist(10.)
 
-    def _SetCharacterStat(self, index: int, amount: float):
+    def _SetCharacterStatEach(self, index: int, amount: float):
         self.__mCharacterStat.SetOption(index, amount)
         self.__mUpdateState = 0
 
@@ -269,15 +274,6 @@ class Character:
 
     def _SetCharacterBaseStat(self, index: int, amount: float):
         self.__mCharacterStat.SetBaseOption(index, amount)
-
-
-
-    def __init__(self, weapon: Weapon, artSetStat: ArtSetStat, flower: ArtFlower, feather: ArtFeather, clock: ArtClock, cup: ArtCup, crown: ArtCrown):
-        self.__mTargetEC = 100.
-        self.__mWeapon = weapon
-        self.SetArtifact(flower, feather, clock, cup, crown)
-        self.SetArtSetStat(artSetStat)
-
 
     # Stat Update & UpdateState
     def DoFeedback(self):
@@ -421,9 +417,9 @@ class Character:
 
     # Artifact MainOption Optimization
     def OptimizeMainOption(self):
-        clockPossibleMain = ArtClock.GetPossibleMainOption()
-        cupPossibleMain = ArtCup.GetPossibleMainOption()
-        crownPossibleMain = ArtCrown.GetPossibleMainOption()
+        clockPossibleMain = ArtClock().GetPossibleMainOption()
+        cupPossibleMain = ArtCup().GetPossibleMainOption()
+        crownPossibleMain = ArtCrown().GetPossibleMainOption()
 
         tempChar = deepcopy(self)
         tempChar.GetArtFlower().SetSubStat(Stat())
@@ -433,12 +429,12 @@ class Character:
         tempChar.GetArtCrown().SetSubStat(Stat())
         tempChar.Update()
 
-        top10Options = [MainOptionsAndDamage()] * 10
+        top10Options = [MainOptionsAndDamage(np.array([0, 0]), 0)] * 10
 
         for clockOpt in clockPossibleMain:
             for cupOpt in cupPossibleMain:
                 for crownOpt in crownPossibleMain:
-                    tempChar.MakeScoreFunctionMainOptionFixed(clockOpt, cupOpt, crownOpt)
+                    tempChar.__MakeScoreFunctionMainOptionFixed(clockOpt, cupOpt, crownOpt)
                     temp28Damage = tempChar.GetScoreFunction(28)
 
                     # tempDamage가 top10Option에 있는 minOption보다 클 경우
@@ -450,7 +446,7 @@ class Character:
                                     top10Options[j + 1] = top10Options[j]
                                     j -= 1
                                 # push to backside if damage is less than temp28Damage
-                                top10Options[i].mainOptions = { clockOpt, cupOpt, crownOpt }
+                                top10Options[i].mainOptions = np.array([ clockOpt, cupOpt, crownOpt ])
                                 top10Options[i].damage = temp28Damage
                                 break
         return top10Options
