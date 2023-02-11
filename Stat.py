@@ -279,12 +279,12 @@ class Stat:
         self.__mStat[34] = (charLv + 100) / (charLv + monsterLv + 200)
 
     def Update(self):
-        self.CalTotalAttack(self)
-        self.CalTotalHP(self)
-        self.CalTotalDefense(self)
-        self.CalResistCoef(self)
-        self.CalDefenseCoef(self)
-        self.CalLevelCoef(self)
+        self.CalTotalAttack()
+        self.CalTotalHP()
+        self.CalTotalDefense()
+        self.CalResistCoef()
+        self.CalDefenseCoef()
+        self.CalLevelCoef()
 
     
     
