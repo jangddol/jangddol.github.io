@@ -6,11 +6,11 @@
   </head>
   <body>
     <h1>Select your character, weapon, and artifact:</h1>
-    <form action="/" method="POST">
+    <form action="/" method="post">
       <select name="character">
-        <option value="Character 1">Character 1</option>
-        <option value="Character 2">Character 2</option>
-        <option value="Character 3">Character 3</option>
+        <option value="Kokomi">Kokomi</option>
+        <option value="Ningguang">Ningguang</option>
+        <option value="Raiden">Raiden</option>
       </select>
       <select name="artifact_set">
         <option value="Artifact Set 1">Artifact Set 1</option>
@@ -28,8 +28,5 @@
       <input type="submit" name="show_score_function" value="Show Score Function">
       <input type="submit" name="show_artifact_set_ranking" value="Show ArtifactSet Ranking">
     </form>
-    <p>{{ character }}</p>
-    <p>{{ artifact_set }}</p>
-    <p>{{ weapon }}</p>
   </body>
 </html>
